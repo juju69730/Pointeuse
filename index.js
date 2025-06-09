@@ -33,18 +33,26 @@ const pointage = new Map();
 
 client.once(Events.ClientReady, () => {
   console.log(`✅ Bot opérationnel : ${client.user.tag}`);
+
+  const channelId = '1380893411502194859'; // 🔁 Remplace par l’ID du salon souhaité
+
+  setInterval(() => {
+    const channel = client.channels.cache.get(channelId);
+    if (channel) {
+      channel.send("⏰ Ceci est un message automatique envoyé toutes les 5 minutes.");
+    } else {
+      console.log("⚠️ Salon introuvable.");
+    }
+  }, 4 * 60 * 1000); // 5 minutes
 });
 
-// ✅ Répond aux mentions du bot
 client.on('messageCreate', async message => {
   if (message.author.bot) return;
-
   if (message.mentions.has(client.user)) {
     message.reply("👋 Je suis réveillé ! Merci !");
   }
 });
 
-// Commandes slash
 client.on(Events.InteractionCreate, async interaction => {
   if (!interaction.isChatInputCommand()) return;
 
@@ -53,7 +61,6 @@ client.on(Events.InteractionCreate, async interaction => {
   const member = await interaction.guild.members.fetch(userId);
   const now = new Date();
 
-  // 📘 /help
   if (interaction.commandName === 'help') {
     return interaction.reply({
       content:
@@ -64,7 +71,6 @@ client.on(Events.InteractionCreate, async interaction => {
     });
   }
 
-  // 📊 /historique
   if (interaction.commandName === 'historique') {
     if (!member.roles.cache.some(role => role.name === PDG_ROLE)) {
       return interaction.reply({ content: '⛔ Tu dois être PDG pour utiliser cette commande.', ephemeral: true });
@@ -132,7 +138,6 @@ client.on(Events.InteractionCreate, async interaction => {
     });
   }
 
-  // 👷 Commandes pointer/depointer
   const job = jobs.find(j => interaction.commandName === `pointer_${j}` || interaction.commandName === `depointer_${j}`);
   if (!job) return;
 
